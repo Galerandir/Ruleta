@@ -2,87 +2,49 @@
 import random as ran
 import matplotlib.pyplot as plt
 import numpy as np
-
 #-----------------------------------Reglas-----------------------------------#
-
-combinaciones = {}
-combinaciones["Doble Docena o Doble Columna a Caballo"] = 24
-combinaciones["Suertes sencillas"] = 18
-combinaciones["Columna o Docena"] = 12
-combinaciones["Seisena o Doble fila transversal"] = 6
-combinaciones["Cuadro"] = 4
-combinaciones["Transversal"] = 3
-combinaciones["Caballo o Pareja"] = 2
-combinaciones["Pleno"] = 1
-
 APUESTAS = (1,2,3,4,6,12,18) 
 PAGOS = (35,17,11,8,5,2,1)
-RELACION = zip(APUESTAS,PAGOS)
-
-
 #-----------------------------------Métodos-----------------------------------#
 def juego(apuesta,cantidad):
     """
-    INPUT: Recibe una lista con los numeros a los que se apuesta y otra con la 
-    cantidad apostada
+    INPUT: Recibe un indice que indica que apuesta se quiere realizar y la 
+    cantidad que se va a apostar
     
     OUTPUT: Devuelve el resultado de la apuesta
     """
-
-    
-    if combinaciones.has_key(apuesta):
-        ruleta = ran.randint(0,36)
-        if ruleta != 0 and ruleta <= combinaciones[apuesta]:
-            return cantidad*(36-combinaciones[apuesta])/combinaciones[apuesta]
-        else:
-            return -cantidad
+    ruleta = ran.randint(0,36)
+    if 0 < ruleta and ruleta <= APUESTAS[apuesta]:
+        return cantidad * PAGOS[apuesta]
     else:
-        print("ERROR: Introduzca una apuesta válida")
-
-
-
-def selector(perdidas):
-    """
-    if perdidas == 0:
-        return "Doble Docena o Doble Columna a Caballo"
-    """
-    if perdidas == 0:
-        return "Suertes sencillas"
-    elif perdidas == 1:
-        return "Suertes sencillas"
-    elif perdidas == 2:
-        return "Columna o Docena"
-    elif perdidas >= 3 and perdidas <= 5:
-        return "Seisena o Doble fila transversal"
-    elif perdidas >= 6 and perdidas <= 8:
-        return "Cuadro"  
-    elif perdidas >=9 and perdidas <= 11:
-        return "Transversal"
-    elif perdidas >= 12 and perdidas <= 17:
-        return "Caballo o Pareja"
-    elif perdidas >= 18 and perdidas <= 35:
-        return "Pleno"
-    else:
-        "Pleno"
-
-          
+        return -cantidad
+         
 def estrategia(total,cantidad_minima,juegos):
     dinero_actual = total    
     apuesta_obligada = cantidad_minima    
     manos_perdidas = 0
+    cantidad_perdida = 0
+    proxima_apuesta = 1
     historial = []
     
-    while dinero_actual > apuesta_obligada and dinero_actual <1.1*total and juegos >= 0:
-        j = juego("1",apuesta_obligada)
+    while dinero_actual > apuesta_obligada and dinero_actual < 5 + total \
+    and juegos >= 0:
+        j = juego(proxima_apuesta,apuesta_obligada)
         juegos += -1
         if j<0:
             manos_perdidas += 1
+            cantidad_perdida += -j
+            proxima_apuesta = decisordeapuesta(manos_perdidas)
+            apuesta_obligada = cantidad_perdida/PAGOS[proxima_apuesta]
         else:
             manos_perdidas = 0
-        dinero_actual += j    
-        apuesta_obligada = cantidad_minima * ( 2**(manos_perdidas/36))
+            cantidad_perdidad = 0
+            proxima_apuesta = 1
+            apuesta_obligada = cantidad_minima
+        dinero_actual += j
         historial.append(dinero_actual)
-    plt.plot(historial)
+    #"plt.plot(historial)"
+    #"print(juegos)"
     return dinero_actual
     
 def simulador(total,cantidad_minima,juegos,numero_de_simulaciones):
@@ -95,9 +57,10 @@ def simulador(total,cantidad_minima,juegos,numero_de_simulaciones):
 def calibrador():
     res = []
     total = 1    
-    for i in range(1,20):
+    for i in range(1,200):
+        print(i)
         total += 1
-        res.append(float(total)/simulador(total,0.2,9999,500))
+        res.append(float(total)/simulador(total,1,9999,500000))
     plt.plot(res)
     return max(res)
     
