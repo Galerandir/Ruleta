@@ -3,51 +3,58 @@ import random as ran
 import matplotlib.pyplot as plt
 import numpy as np
 #-----------------------------------Reglas-----------------------------------#
-APUESTAS = (1,2,3,4,6,12,18) 
-PAGOS = (35,17,11,8,5,2,1)
+APUESTAS = (1,2,3,4,6,12,18,24) 
+PAGOS = (35,17,11,8,5,2,1,0.5)
 #-----------------------------------Métodos-----------------------------------#
-def juego(apuesta,cantidad):
+def jugada(cantidad_perdida):
     """
-    INPUT: Recibe un indice que indica que apuesta se quiere realizar y la 
-    cantidad que se va a apostar
+    INPUT: la cantidad de pasta que llevas palmada
+    
+    OUTPUT: una tupla que te dice  el indice de la
+    apuesta que tienes que jugar y cuanto tienes que apostar 
+    """
+    if cantidad_perdida != 0:
+        for i,p in enumerate(PAGOS[:-1]):
+            if cantidad_perdida % p == 0:
+                return (i, cantidad_perdida / p)
+    else:
+        return (7,1)
+
+def juego(tupla_apuesta_cantidad):
+    """
+    INPUT: Recibe una tupla con el indice de la apuesta que se va a realizar y
+    la pasta que vas a echar
     
     OUTPUT: Devuelve el resultado de la apuesta
     """
     ruleta = ran.randint(0,36)
-    if 0 < ruleta and ruleta <= APUESTAS[apuesta]:
-        return cantidad * PAGOS[apuesta]
+    if 0 < ruleta and ruleta <= APUESTAS[tupla_apuesta_cantidad[0]]:
+        return tupla_apuesta_cantidad[1] * PAGOS[tupla_apuesta_cantidad[0]]
     else:
-        return -cantidad
-         
-def estrategia(total,cantidad_minima,juegos):
+        return -tupla_apuesta_cantidad[1]
+
+def estrategia(total, juegos=100, cantidad_minima=1):
+
     dinero_actual = total    
-    apuesta_obligada = cantidad_minima    
-    manos_perdidas = 0
     cantidad_perdida = 0
-    proxima_apuesta = 1
-    historial = []
-    
-    while dinero_actual > apuesta_obligada and dinero_actual < 5 + total \
-    and juegos >= 0:
-        j = juego(proxima_apuesta,apuesta_obligada)
+    historial = [total]
+
+    while dinero_actual >= jugada(cantidad_perdida)[1] \
+    and dinero_actual < 5 * cantidad_minima + total \
+    and juegos > 0:
+        j = juego(jugada(cantidad_perdida))
         juegos += -1
-        if j<0:
-            manos_perdidas += 1
+        if j < 0:
             cantidad_perdida += -j
-            proxima_apuesta = decisordeapuesta(manos_perdidas)
-            apuesta_obligada = cantidad_perdida/PAGOS[proxima_apuesta]
         else:
-            manos_perdidas = 0
             cantidad_perdidad = 0
-            proxima_apuesta = 1
-            apuesta_obligada = cantidad_minima
         dinero_actual += j
         historial.append(dinero_actual)
-    #"plt.plot(historial)"
-    #"print(juegos)"
+    plt.plot(historial)
+#    print(juegos)
     return dinero_actual
     
-def simulador(total,cantidad_minima,juegos,numero_de_simulaciones):
+def simulador(total, cantidad_minima=1, juegos=100, numero_de_simulaciones=500):
     res = []   
     for i in range(numero_de_simulaciones):
         estrategia(total,cantidad_minima,juegos)
@@ -57,7 +64,7 @@ def simulador(total,cantidad_minima,juegos,numero_de_simulaciones):
 def calibrador():
     res = []
     total = 1    
-    for i in range(1,200):
+    for i in range(1,20):
         print(i)
         total += 1
         res.append(float(total)/simulador(total,1,9999,500000))
@@ -65,13 +72,6 @@ def calibrador():
     return max(res)
     
 
-def decisordeapuesta(a):
-    if a != 0:
-        for i,p in enumerate(PAGOS):
-            if a % p == 0:
-                return i
-    else:
-        return 6
 
 """
 def estrategia(limite_economico,limite_temporal):
