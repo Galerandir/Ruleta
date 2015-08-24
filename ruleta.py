@@ -50,11 +50,11 @@ def estrategia(total, juegos=100, cantidad_minima=1):
             cantidad_perdidad = 0
         dinero_actual += j
         historial.append(dinero_actual)
-    plt.plot(historial)
+#    plt.plot(historial)
 #    print(juegos)
     return dinero_actual
     
-def simulador(total, cantidad_minima=1, juegos=100, numero_de_simulaciones=500):
+def simulador(total, cantidad_minima=1, juegos=1000, numero_de_simulaciones=500):
     res = []   
     for i in range(numero_de_simulaciones):
         estrategia(total,cantidad_minima,juegos)
@@ -64,35 +64,9 @@ def simulador(total, cantidad_minima=1, juegos=100, numero_de_simulaciones=500):
 def calibrador():
     res = []
     total = 1    
-    for i in range(1,20):
+    for i in range(1,20000):
         print(i)
         total += 1
-        res.append(float(total)/simulador(total,1,9999,500000))
+        res.append(simulador(total)/float(total))
     plt.plot(res)
     return max(res)
-    
-
-
-"""
-def estrategia(limite_economico,limite_temporal):
-
-    dinero_actual = limite_economico
-    apuesta_obligada = 1
-    manos_perdidas = 0
-    historial = []
-
-    while apuesta_obligada < dinero_actual and dinero_actual < 1.1 * limite_economico and 0 <= juegos:
-        j = juego(decisordeapuesta(manos))
-        """
-        
-        
-        
-        
-        
-
-     
-        
-        
-        
-    
-    
