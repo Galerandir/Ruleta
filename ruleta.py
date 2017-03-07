@@ -8,7 +8,7 @@ PAGOS = (35,17,11,8,5,2,1,0.5)
 #-----------------------------------Métodos-----------------------------------#
 def jugada(cantidad_perdida):
     """
-    INPUT: la cantidad de pasta que llevas palmada
+    INPUT: la cantidad de pasta que llevas palmad
     
     OUTPUT: una tupla que te dice  el indice de la
     apuesta que tienes que jugar y cuanto tienes que apostar 
